@@ -68,13 +68,13 @@ class PCConfiguration:
                 },
                 'disk': {
                     'file_system_type': disk_info[0].fstype,
-                    'total': self.get_size(disk_memory_info.total),
+                    'total_memory': self.get_size(disk_memory_info.total),
                     'available': self.get_size(disk_memory_info.free),
                     'used': self.get_size(disk_memory_info.used),
                     'used_in_percents': f'{disk_memory_info.percent}%',
                 },
                 'ram': {
-                    'total': self.get_size(ram_info.total),
+                    'total_memory': self.get_size(ram_info.total),
                     'available': self.get_size(ram_info.available),
                     'used': self.get_size(ram_info.used),
                     'used_in_percents': f'{ram_info.percent}%',
