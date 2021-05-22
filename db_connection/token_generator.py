@@ -1,5 +1,6 @@
 import requests
 from marshmallow import ValidationError
+from simplejson import JSONDecodeError
 
 from config import CONFIGURATION
 from db_connection.schemas.token_generator_shcema import TokenGeneratorSchema
@@ -16,7 +17,7 @@ def get_token():
     try:
         response_body = generator_response.json()
         response_data = response_schema.load(response_body)
-    except ValidationError as exception:
+    except (ValidationError, JSONDecodeError) as exception:
         raise exception
 
     return response_data['token']

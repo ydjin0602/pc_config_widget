@@ -1,7 +1,6 @@
 class Configuration:
-    token_generator_url = 'http://127.0.0.1:5000/'  # TODO: FIX ME
-    create_record_db_url = 'http://127.0.0.1:5000/'  # TODO: FIX ME
-    update_record_db_url = 'http://127.0.0.1:5000/'  # TODO: FIX ME
+    token_generator_url = 'http://0.0.0.0:4222/token_generator/'
+    db_manager_url = 'http://0.0.0.0:4222/db_manager/'
 
 
 CONFIGURATION = Configuration()
