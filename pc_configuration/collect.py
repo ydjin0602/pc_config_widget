@@ -86,7 +86,7 @@ class PCConfiguration:
     def get_cpu_per_core():
         cpu_usage_per_core = ''
         for i, percentage in enumerate(psutil.cpu_percent(percpu=True, interval=1)):
-            cpu_usage_per_core += f"Core {i}: {percentage}%\n"
+            cpu_usage_per_core += f"Core {i + 1}: {percentage}%\n"
         return cpu_usage_per_core
 
     @staticmethod
