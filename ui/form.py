@@ -5,7 +5,7 @@ from tkinter import messagebox
 
 import requests
 from marshmallow import ValidationError
-from simplejson import JSONDecodeError
+from json import JSONDecodeError
 
 from db_connection.db_connection_manager import DBConnectionManager
 from db_connection.token_generator import get_token

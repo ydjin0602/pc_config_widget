@@ -1,6 +1,6 @@
 import requests
 from marshmallow import ValidationError
-from simplejson import JSONDecodeError
+from json import JSONDecodeError
 
 from config import CONFIGURATION
 from db_connection.schemas.token_generator_shcema import TokenGeneratorSchema
