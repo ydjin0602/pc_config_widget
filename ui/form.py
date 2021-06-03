@@ -24,10 +24,10 @@ class UIForm(Tk):
         self.protocol('WM_DELETE_WINDOW', self.on_closing)
 
         self.label = Entry(self, state='readonly')
-        self.label.pack()
+        self.label.pack(expand=1)
 
         self.button = Button(self, text='Connect', command=self.connection)
-        self.button.pack()
+        self.button.pack(expand=1)
 
         try:
             self.token = get_token()
