@@ -60,7 +60,7 @@ class UIForm(Tk):
             self.thread.start()
         except (requests.exceptions.RequestException, ValidationError, JSONDecodeError) as exception:
             messagebox.showerror(title='Error',
-                                 message='Error while pushing your configuration token on site. '
+                                 message='Error while pushing your configuration on site. '
                                          'Check your internet connection or try again later!')
             self.destroy()
 
@@ -69,9 +69,9 @@ class UIForm(Tk):
             self.configuration_object.update()
             try:
                 DB_CONNECTION_MANAGER.update(self.configuration_object.config)
-                time.sleep(1)
+                time.sleep(5)
             except (requests.exceptions.RequestException, ValidationError, JSONDecodeError) as exception:
                 messagebox.showerror(title='Error',
-                                     message='Error while updating your configuration token on site. '
+                                     message='Error while updating your configuration on site. '
                                              'Check your internet connection or try again later!')
                 self.destroy()
