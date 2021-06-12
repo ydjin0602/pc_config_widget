@@ -2,9 +2,9 @@ import platform
 import socket
 import re
 import uuid
-from winreg import ConnectRegistry, OpenKey, QueryValueEx, HKEY_LOCAL_MACHINE
 
 import psutil
+from GPUtil import GPUtil
 from pyspectator.computer import Computer
 
 from pc_configuration.os_enum import OSName
@@ -20,6 +20,8 @@ class PCConfiguration:
         ram_info = psutil.virtual_memory()
         disk_info = psutil.disk_partitions()
         disk_memory_info = psutil.disk_usage(disk_info[0].mountpoint)
+        gpu_info = GPUtil.getGPUs()[0]
+
         self.config = {
             'token': token,
             'os': {
@@ -30,8 +32,7 @@ class PCConfiguration:
                 'total_cores': psutil.cpu_count(logical=True),
 
                 'max_frequency': f'{psutil.cpu_freq().max}Mhz',
-                'current_frequency': f'{psutil.cpu_freq().current}Mhz',
-                'temperature': f'5°C',
+                'current_frequency': f'{psutil.cpu_freq().current:.2f}Mhz',
                 'loading': f'{psutil.cpu_percent()}%',
                 'usage_per_core': self.get_cpu_per_core(),
             },
@@ -53,6 +54,15 @@ class PCConfiguration:
                 'used': self.get_size(ram_info.used),
                 'used_in_percents': f'{ram_info.percent}%',
             },
+            'gpu': {
+                'name': gpu_info.name,
+                'temperature': f'{gpu_info.temperature}°C',
+                'loading': f'{gpu_info.load}%',
+                'total_memory': f'{gpu_info.memoryTotal}MB',
+                'available': f'{gpu_info.memoryFree}MB',
+                'used': f'{gpu_info.memoryUsed}MB',
+                'used_in_percents': f'{gpu_info.memoryUsed / gpu_info.memoryTotal * 100:.2f}%'
+            }
         }
 
         if self.system_name == OSName.LINUX.value:
@@ -77,14 +87,14 @@ class PCConfiguration:
         ram_info = psutil.virtual_memory()
         disk_info = psutil.disk_partitions()
         disk_memory_info = psutil.disk_usage(disk_info[0].mountpoint)
+        gpu_info = GPUtil.getGPUs()[0]
         self.config.update(
             {
                 'processor': {
                     'architecture': platform.processor(),
                     'total_cores': psutil.cpu_count(logical=True),
                     'max_frequency': f'{psutil.cpu_freq().max}Mhz',
-                    'current_frequency': f'{psutil.cpu_freq().current}Mhz',
-                    'temperature': f'6°C',
+                    'current_frequency': f'{psutil.cpu_freq().current:.2f}Mhz',
                     'loading': f'{psutil.cpu_percent()}%',
                     'usage_per_core': self.get_cpu_per_core(),
                 },
@@ -101,6 +111,15 @@ class PCConfiguration:
                     'used': self.get_size(ram_info.used),
                     'used_in_percents': f'{ram_info.percent}%',
                 },
+                'gpu': {
+                    'name': gpu_info.name,
+                    'temperature': f'{gpu_info.temperature}°C',
+                    'loading': f'{gpu_info.load}%',
+                    'total_memory': f'{gpu_info.memoryTotal}MB',
+                    'available': f'{gpu_info.memoryFree}MB',
+                    'used': f'{gpu_info.memoryUsed}MB',
+                    'used_in_percents': f'{gpu_info.memoryUsed / gpu_info.memoryTotal * 100:.2f}%'
+                }
             }
         )
 
@@ -139,6 +158,8 @@ class PCConfiguration:
 
     @staticmethod
     def get_processor_name():
+        from winreg import ConnectRegistry, OpenKey, QueryValueEx, HKEY_LOCAL_MACHINE
+
         registry_connection = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
         registry_key = OpenKey(registry_connection, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0")
         name = QueryValueEx(registry_key, 'ProcessorNameString')[0]
