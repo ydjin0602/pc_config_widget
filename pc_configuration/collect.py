@@ -2,6 +2,7 @@ import platform
 import socket
 import re
 import uuid
+from winreg import ConnectRegistry, OpenKey, QueryValueEx, HKEY_LOCAL_MACHINE
 
 import psutil
 from pyspectator.computer import Computer
@@ -19,7 +20,6 @@ class PCConfiguration:
         ram_info = psutil.virtual_memory()
         disk_info = psutil.disk_partitions()
         disk_memory_info = psutil.disk_usage(disk_info[0].mountpoint)
-
         self.config = {
             'token': token,
             'os': {
@@ -27,7 +27,6 @@ class PCConfiguration:
                 'version': os_info.version,
             },
             'processor': {
-                'name': Computer().processor.name,
                 'total_cores': psutil.cpu_count(logical=True),
 
                 'max_frequency': f'{psutil.cpu_freq().max}Mhz',
@@ -59,6 +58,7 @@ class PCConfiguration:
         if self.system_name == OSName.LINUX.value:
             self.config['processor'].update(
                 {
+                    'name': Computer().processor.name,
                     'architecture': platform.processor(),
                     'temperature': f'{psutil.sensors_temperatures()["k10temp"][0].current}°C'
                 }
@@ -67,6 +67,7 @@ class PCConfiguration:
         if self.system_name == OSName.WINDOWS.value:
             self.config['processor'].update(
                 {
+                    'name': self.get_processor_name(),
                     'architecture': platform.architecture()[0],
                     'temperature': 'Unavailable for OS Windows'
                 }
@@ -79,7 +80,6 @@ class PCConfiguration:
         self.config.update(
             {
                 'processor': {
-                    'name': Computer().processor.name,
                     'architecture': platform.processor(),
                     'total_cores': psutil.cpu_count(logical=True),
                     'max_frequency': f'{psutil.cpu_freq().max}Mhz',
@@ -107,6 +107,7 @@ class PCConfiguration:
         if self.system_name == OSName.LINUX.value:
             self.config['processor'].update(
                 {
+                    'name': Computer().processor.name,
                     'architecture': platform.processor(),
                     'temperature': f'{psutil.sensors_temperatures()["k10temp"][0].current}°C'
                 }
@@ -115,6 +116,7 @@ class PCConfiguration:
         if self.system_name == OSName.WINDOWS.value:
             self.config['processor'].update(
                 {
+                    'name': self.get_processor_name(),
                     'architecture': str(platform.architecture()[0]),
                     'temperature': f'Unavailable for OS Windows'
                 }
@@ -134,3 +136,10 @@ class PCConfiguration:
             if size_in_bytes < factor:
                 return f"{size_in_bytes:.2f}{unit}B"
             size_in_bytes /= factor
+
+    @staticmethod
+    def get_processor_name():
+        registry_connection = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
+        registry_key = OpenKey(registry_connection, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+        name = QueryValueEx(registry_key, 'ProcessorNameString')[0]
+        return name
