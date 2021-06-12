@@ -35,7 +35,6 @@ class DBConnectionManager:
             request_body = self.__RECORD_SCHEMA.load(data)
         except ValidationError as exception:
             raise exception
-
         response = requests.put(
             url=CONFIGURATION.db_manager_url,
             json=request_body,

@@ -6,10 +6,16 @@ import uuid
 import psutil
 from pyspectator.computer import Computer
 
+from pc_configuration.os_enum import OSName
+
 
 class PCConfiguration:
     def __init__(self, token: str):
+
         os_info = platform.uname()
+
+        self.system_name = os_info.system
+
         ram_info = psutil.virtual_memory()
         disk_info = psutil.disk_partitions()
         disk_memory_info = psutil.disk_usage(disk_info[0].mountpoint)
@@ -17,16 +23,16 @@ class PCConfiguration:
         self.config = {
             'token': token,
             'os': {
-                'name': os_info.system,
+                'name': self.system_name,
                 'version': os_info.version,
             },
             'processor': {
                 'name': Computer().processor.name,
-                'architecture': platform.processor(),
                 'total_cores': psutil.cpu_count(logical=True),
-                'max_frequency': f'{psutil.cpu_freq().max:.2f}Mhz',
-                'current_frequency': f'{psutil.cpu_freq().current:.2f}Mhz',
-                'temperature': f'{psutil.sensors_temperatures()["k10temp"][0].current}°C',
+
+                'max_frequency': f'{psutil.cpu_freq().max}Mhz',
+                'current_frequency': f'{psutil.cpu_freq().current}Mhz',
+                'temperature': f'5°C',
                 'loading': f'{psutil.cpu_percent()}%',
                 'usage_per_core': self.get_cpu_per_core(),
             },
@@ -50,6 +56,22 @@ class PCConfiguration:
             },
         }
 
+        if self.system_name == OSName.LINUX.value:
+            self.config['processor'].update(
+                {
+                    'architecture': platform.processor(),
+                    'temperature': f'{psutil.sensors_temperatures()["k10temp"][0].current}°C'
+                }
+            )
+
+        if self.system_name == OSName.WINDOWS.value:
+            self.config['processor'].update(
+                {
+                    'architecture': platform.architecture()[0],
+                    'temperature': 'Unavailable for OS Windows'
+                }
+            )
+
     def update(self):
         ram_info = psutil.virtual_memory()
         disk_info = psutil.disk_partitions()
@@ -60,9 +82,9 @@ class PCConfiguration:
                     'name': Computer().processor.name,
                     'architecture': platform.processor(),
                     'total_cores': psutil.cpu_count(logical=True),
-                    'max_frequency': f'{psutil.cpu_freq().max:.2f}Mhz',
-                    'current_frequency': f'{psutil.cpu_freq().current:.2f}Mhz',
-                    'temperature': f'{psutil.sensors_temperatures()["k10temp"][0].current}°C',
+                    'max_frequency': f'{psutil.cpu_freq().max}Mhz',
+                    'current_frequency': f'{psutil.cpu_freq().current}Mhz',
+                    'temperature': f'6°C',
                     'loading': f'{psutil.cpu_percent()}%',
                     'usage_per_core': self.get_cpu_per_core(),
                 },
@@ -81,6 +103,22 @@ class PCConfiguration:
                 },
             }
         )
+
+        if self.system_name == OSName.LINUX.value:
+            self.config['processor'].update(
+                {
+                    'architecture': platform.processor(),
+                    'temperature': f'{psutil.sensors_temperatures()["k10temp"][0].current}°C'
+                }
+            )
+
+        if self.system_name == OSName.WINDOWS.value:
+            self.config['processor'].update(
+                {
+                    'architecture': str(platform.architecture()[0]),
+                    'temperature': f'Unavailable for OS Windows'
+                }
+            )
 
     @staticmethod
     def get_cpu_per_core():
